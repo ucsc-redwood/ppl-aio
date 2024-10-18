@@ -1,7 +1,9 @@
 #!/usr/bin/env fish
 
-# set executable "cpu-info"
-set executable test
+# set executable cpu-info
+set executable micro-bench
+# set executable test
+
 set local_executable_path "./build/android/armeabi-v7a/release/$executable"
 # set local_executable_path "./build/android/arm64-v8a/release/$executable"
 
