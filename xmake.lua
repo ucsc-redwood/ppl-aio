@@ -5,11 +5,6 @@ set_warnings("all")
 
 add_requires("glm")
 
--- No pthread on Android
-if is_plat("linux") then
-    add_requires("pthread")
-end
-
 includes("demo")
 includes("tests")
 
