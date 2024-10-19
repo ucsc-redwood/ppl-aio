@@ -1,7 +1,8 @@
 #!/usr/bin/env fish
 
 # set executable cpu-info
-set executable micro-bench
+set executable cpu-bench
+# set executable micro-bench
 # set executable test
 
 set local_executable_path "./build/android/armeabi-v7a/release/$executable"
@@ -26,3 +27,4 @@ else
         run_on_device $device
     end
 end
+
