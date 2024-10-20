@@ -1,6 +1,7 @@
 add_rules("mode.debug", "mode.release")
 
-set_languages("cxx17")
+-- set_languages("cxx17")
+set_languages("c++20")
 set_warnings("allextra")
 
 add_requires("glm")
