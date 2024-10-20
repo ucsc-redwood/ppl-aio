@@ -17,3 +17,8 @@ target("test-cuda")
     add_cugencodes("native")
 end
 
+target("test-threadpool")
+    set_kind("binary")
+    add_includedirs("$(projectdir)/include")
+    add_files("test-threadpool.cpp")
+    add_packages("benchmark", "gtest")
