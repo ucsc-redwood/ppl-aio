@@ -37,3 +37,7 @@ sudo apt update
 sudo apt install vulkan-sdk
 ```
 
+#### volk.h
+
+To make Vulkan easily work on Android. We use `volk` library. 
+
