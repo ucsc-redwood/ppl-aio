@@ -2,7 +2,7 @@
 
 ## Platforms Supported
 
-* Generic Linux 
+* Generic Linux (w/ Nvidia GPU)
 * Nvidia Jetson Orin 
 * Android
 

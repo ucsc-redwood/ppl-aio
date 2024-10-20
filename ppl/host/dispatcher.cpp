@@ -2,14 +2,15 @@
 
 #include "host/all.hpp"
 #include "host/barrier.hpp"
-#include "third-party/BS_thread_pool.hpp"
 
 namespace cpu {
 // by default it uses maximum number of threads on the System, great!
 
-extern BS::thread_pool pool;
+// extern BS::thread_pool pool;
 
-void dispatch_ComputeMorton(const int n_threads, pipe* p) {
+void dispatch_ComputeMorton(BS::thread_pool& pool,
+                            const int n_threads,
+                            struct pipe* p) {
   cpu::dispatch_morton_code(pool,
                             n_threads,
                             p->n_input(),
@@ -20,7 +21,9 @@ void dispatch_ComputeMorton(const int n_threads, pipe* p) {
       .wait();
 }
 
-void dispatch_RadixSort(const int n_threads, pipe* p) {
+void dispatch_RadixSort(BS::thread_pool& pool,
+                        const int n_threads,
+                        struct pipe* p) {
   barrier bar(n_threads);
   dispatch_binning_pass(
       pool, n_threads, bar, p->n_input(), p->u_morton, p->u_morton_alt, 0)
@@ -36,7 +39,9 @@ void dispatch_RadixSort(const int n_threads, pipe* p) {
       .wait();
 }
 
-void dispatch_RemoveDuplicates(const int n_threads, pipe* p) {
+void dispatch_RemoveDuplicates(BS::thread_pool& pool,
+                               const int n_threads,
+                               struct pipe* p) {
   auto unique_future =
       dispatch_unique(pool, p->n_input(), p->u_morton, p->u_morton_alt);
   auto n_unique = unique_future.get();
@@ -44,20 +49,28 @@ void dispatch_RemoveDuplicates(const int n_threads, pipe* p) {
   p->brt.set_n_nodes(n_unique - 1);
 }
 
-void dispatch_BuildRadixTree(const int n_threads, pipe* p) {
+void dispatch_BuildRadixTree(BS::thread_pool& pool,
+                             const int n_threads,
+                             struct pipe* p) {
   dispatch_build_radix_tree(pool, n_threads, p->u_morton_alt, &p->brt).wait();
 }
 
-void dispatch_EdgeCount(const int n_threads, pipe* p) {
+void dispatch_EdgeCount(BS::thread_pool& pool,
+                        const int n_threads,
+                        struct pipe* p) {
   dispatch_edge_count(pool, n_threads, &p->brt, p->u_edge_counts).wait();
 }
 
-void dispatch_EdgeOffset(const int n_threads, pipe* p) {
+void dispatch_EdgeOffset(BS::thread_pool& pool,
+                         const int n_threads,
+                         struct pipe* p) {
   dispatch_edge_offset(pool, n_threads, p->u_edge_counts, p->u_edge_offsets)
       .wait();
 }
 
-void dispatch_BuildOctree(const int n_threads, pipe* p) {
+void dispatch_BuildOctree(BS::thread_pool& pool,
+                          const int n_threads,
+                          struct pipe* p) {
   dispatch_make_oct_node(pool,
                          n_threads,
                          p->u_edge_offsets,

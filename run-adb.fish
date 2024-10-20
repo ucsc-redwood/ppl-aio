@@ -3,9 +3,10 @@
 # set executable cpu-info
 # set executable bench-cpu
 # set executable micro-bench
-set executable test-threadpool
+# set executable test-threadpool
 # set executable test-vulkan
 # set executable test-glm
+set executable demo-cpu-only
 
 set local_executable_path "./build/android/armeabi-v7a/release/$executable"
 # set local_executable_path "./build/android/arm64-v8a/release/$executable"
