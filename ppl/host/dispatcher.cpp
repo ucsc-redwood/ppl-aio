@@ -1,7 +1,9 @@
 #include "host/dispatcher.hpp"
 
+#include <barrier>
+
 #include "host/all.hpp"
-#include "host/barrier.hpp"
+// #include "host/barrier.hpp"
 
 namespace cpu {
 // by default it uses maximum number of threads on the System, great!
@@ -24,7 +26,9 @@ void dispatch_ComputeMorton(BS::thread_pool& pool,
 void dispatch_RadixSort(BS::thread_pool& pool,
                         const int n_threads,
                         struct pipe* p) {
-  barrier bar(n_threads);
+  //   barrier bar(n_threads);
+
+  std::barrier bar(n_threads);
   dispatch_binning_pass(
       pool, n_threads, bar, p->n_input(), p->u_morton, p->u_morton_alt, 0)
       .wait();

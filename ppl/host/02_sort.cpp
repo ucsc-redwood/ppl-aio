@@ -23,7 +23,8 @@ struct {
 } sort;
 
 void k_binning_pass(const size_t tid,
-                    barrier& barrier,
+                    std::barrier<>& barrier,
+                    // barrier& barrier,
                     const morton_t* u_sort_begin,
                     const morton_t* u_sort_end,
                     morton_t* u_sort_alt,  // output
@@ -47,7 +48,8 @@ void k_binning_pass(const size_t tid,
 
   lck.unlock();
 
-  barrier.wait();
+  // barrier.wait();
+  barrier.arrive_and_wait();
 
   if (tid == 0) {
     std::partial_sum(std::begin(sort.bucket),
@@ -55,7 +57,8 @@ void k_binning_pass(const size_t tid,
                      std::begin(sort.bucket));
   }
 
-  barrier.wait();
+  // barrier.wait();
+  barrier.arrive_and_wait();
 
   lck.lock();
   sort.cv.wait(lck, [&] { return tid == sort.current_thread; });
@@ -80,7 +83,8 @@ void k_binning_pass(const size_t tid,
 
 BS::multi_future<void> cpu::dispatch_binning_pass(BS::thread_pool& pool,
                                                   const size_t n_threads,
-                                                  barrier& barrier,
+                                                  std::barrier<>& barrier,
+                                                  // barrier& barrier,
                                                   const int n,
                                                   const morton_t* u_sort,
                                                   morton_t* u_sort_alt,
