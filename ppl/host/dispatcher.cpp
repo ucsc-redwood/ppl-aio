@@ -42,9 +42,15 @@ void dispatch_RadixSort(BS::thread_pool& pool,
 void dispatch_RemoveDuplicates(BS::thread_pool& pool,
                                const int n_threads,
                                struct pipe* p) {
-  auto unique_future =
-      dispatch_unique(pool, p->n_input(), p->u_morton, p->u_morton_alt);
-  auto n_unique = unique_future.get();
+  //   auto unique_future =
+  //   dispatch_unique(pool, p->n_input(), p->u_morton, p->u_morton_alt);
+
+  const auto last = std::unique_copy(
+      p->u_morton, p->u_morton + p->n_input(), p->u_morton_alt);
+  const auto n_unique = std::distance(p->u_morton_alt, last);
+  // return static_cast<int>(n_unique);
+
+  //   auto n_unique = unique_future.get();
   p->set_n_unique(n_unique);
   p->brt.set_n_nodes(n_unique - 1);
 }
