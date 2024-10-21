@@ -38,6 +38,10 @@ class DispatchTest : public ::testing::Test {
     p.reset();
   }
 
+  bool isSorted(const uint32_t* data, size_t size) {
+    return std::is_sorted(data, data + size);
+  }
+
   BS::thread_pool pool;
   int n_threads;
   std::shared_ptr<struct pipe> p;
@@ -56,6 +60,18 @@ TEST_F(DispatchTest, RadixSortRunsWithoutException) {
   });
 }
 
+// Test for dispatch_RadixSort to verify sorting correctness
+TEST_F(DispatchTest, RadixSortCorrectness) {
+  EXPECT_NO_THROW({
+    cpu::dispatch_ComputeMorton(pool, n_threads, p.get());
+    cpu::dispatch_RadixSort(pool, n_threads, p.get());
+  });
+
+  // Verify that the morton codes are sorted
+  bool sorted = isSorted(p->getSortedKeys(), p->n_input());
+  EXPECT_TRUE(sorted) << "The morton codes are not sorted correctly.";
+}
+
 // Test for dispatch_RemoveDuplicates
 TEST_F(DispatchTest, RemoveDuplicatesRunsWithoutException) {
   EXPECT_NO_THROW({
@@ -64,6 +80,39 @@ TEST_F(DispatchTest, RemoveDuplicatesRunsWithoutException) {
     cpu::dispatch_RemoveDuplicates(pool, n_threads, p.get());
   });
 }
+
+// TEST_F(DispatchTest, RemoveDuplicatesCorrectness) {
+//   // Run the necessary preceding functions
+//   ASSERT_NO_THROW({
+//     cpu::dispatch_ComputeMorton(pool, n_threads, p.get());
+//     cpu::dispatch_RadixSort(pool, n_threads, p.get());
+//   });
+
+//   // Capture the sorted morton codes before removing duplicates
+//   std::vector<uint32_t> sorted_morton_codes(p->getSortedKeys(),
+//                                             p->getSortedKeys() +
+//                                             p->n_input());
+
+//   // Run the RemoveDuplicates function
+//   ASSERT_NO_THROW(
+//       { cpu::dispatch_RemoveDuplicates(pool, n_threads, p.get()); });
+
+//   // Use std::unique to get the expected unique morton codes
+//   auto unique_end =
+//       std::unique(sorted_morton_codes.begin(), sorted_morton_codes.end());
+//   sorted_morton_codes.erase(unique_end, sorted_morton_codes.end());
+
+//   // Compare sizes
+//   EXPECT_EQ(p->getUniqueKeys(), sorted_morton_codes.size())
+//       << "The number of unique morton codes does not match.";
+
+//   // Compare the unique morton codes
+//   bool match = std::equal(p->getUniqueKeys(),
+//                           p->getUniqueKeys() + p->n_unique_mortons(),
+//                           sorted_morton_codes.begin());
+//   EXPECT_TRUE(match)
+//       << "The unique morton codes do not match the expected result.";
+// }
 
 // Test for dispatch_BuildRadixTree
 TEST_F(DispatchTest, BuildRadixTreeRunsWithoutException) {
@@ -78,11 +127,19 @@ TEST_F(DispatchTest, BuildRadixTreeRunsWithoutException) {
 // Test for dispatch_EdgeCount
 TEST_F(DispatchTest, EdgeCountRunsWithoutException) {
   EXPECT_NO_THROW({
+    // cpu::dispatch_ComputeMorton(pool, n_threads, p.get());
+    // cpu::dispatch_RadixSort(pool, n_threads, p.get());
+    // cpu::dispatch_RemoveDuplicates(pool, n_threads, p.get());
+    // cpu::dispatch_BuildRadixTree(pool, n_threads, p.get());
+    // cpu::dispatch_EdgeCount(pool, n_threads, p.get());
+
     cpu::dispatch_ComputeMorton(pool, n_threads, p.get());
     cpu::dispatch_RadixSort(pool, n_threads, p.get());
     cpu::dispatch_RemoveDuplicates(pool, n_threads, p.get());
     cpu::dispatch_BuildRadixTree(pool, n_threads, p.get());
     cpu::dispatch_EdgeCount(pool, n_threads, p.get());
+    // cpu::dispatch_EdgeOffset(pool, n_threads, p.get());
+    // cpu::dispatch_BuildOctree(pool, n_threads, p.get());
   });
 }
 
