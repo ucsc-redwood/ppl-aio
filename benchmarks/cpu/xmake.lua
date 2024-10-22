@@ -4,4 +4,3 @@ target("bench-cpu")
     add_files("main.cpp")
     add_packages("benchmark", "glm")
     add_deps("ppl")
-
