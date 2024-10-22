@@ -1,10 +1,11 @@
 #!/usr/bin/env fish
 
-# set executable cpu-info
-# set executable bench-cpu
-# set executable micro-bench
-set executable test-vulkan
-# set executable test-glm
+# get executable name from command line
+if test (count $argv) -lt 1
+    echo "Usage: $argv[0] <executable-name>"
+    exit 1
+end
+set executable $argv[1]
 
 set local_executable_path "./build/android/armeabi-v7a/release/$executable"
 # set local_executable_path "./build/android/arm64-v8a/release/$executable"
@@ -18,7 +19,7 @@ function run_on_device
 end
 
 # Main task: find all connected devices and run the executable on each
-set devices (adb devices | awk 'NR>1 && $1!="list" {print $1}')
+set devices (adb devices | awk 'NR>1 && $1!="list" && $1!="" {print $1}')
 
 if test -z "$devices"
     echo "No devices connected."

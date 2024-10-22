@@ -2,7 +2,7 @@
 
 ## Platforms Supported
 
-* Generic Linux 
+* Generic Linux (w/ Nvidia GPU)
 * Nvidia Jetson Orin 
 * Android
 
@@ -36,4 +36,8 @@ sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.296-noble.list https://p
 sudo apt update
 sudo apt install vulkan-sdk
 ```
+
+#### volk.h
+
+To make Vulkan easily work on Android. We use `volk` library. 
 
