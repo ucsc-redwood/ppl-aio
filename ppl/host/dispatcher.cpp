@@ -1,9 +1,9 @@
 #include "host/dispatcher.hpp"
 
 #include <barrier>
+// #include "host/barrier.hpp"
 
 #include "host/all.hpp"
-// #include "host/barrier.hpp"
 
 namespace cpu {
 // by default it uses maximum number of threads on the System, great!
