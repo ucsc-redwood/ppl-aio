@@ -1,11 +1,13 @@
 // Include necessary headers
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <glm/glm.hpp>
 #include <memory>
 #include <random>
 #include <thread>
 
+#include "gtest/gtest.h"
 #include "host/dispatcher.hpp"
 #include "shared/structures.h"
 #include "third-party/BS_thread_pool.hpp"
@@ -16,7 +18,7 @@ constexpr auto min_coord = 0.0f;
 constexpr auto range = 1024.0f;
 constexpr auto seed = 114514;
 
-void gen_data(const std::shared_ptr<struct pipe>& p) {
+void gen_data(const std::unique_ptr<struct pipe>& p) {
   std::mt19937 gen(seed);  // NOLINT(cert-msc51-cpp)
   std::uniform_real_distribution dis(min_coord, min_coord + range);
   std::generate_n(p->u_points, n, [&dis, &gen] {
@@ -24,148 +26,108 @@ void gen_data(const std::shared_ptr<struct pipe>& p) {
   });
 }
 
-// Test fixture class for setting up common resources
-class DispatchTest : public ::testing::Test {
- protected:
-  void SetUp() override {
-    n_threads = std::thread::hardware_concurrency();
-    p = std::make_shared<struct pipe>(n, min_coord, range, seed);
-    gen_data(p);
-  }
+// Don't use fixtures, it cause segfaults because of thread pool
+#define SETUP_PIPE_AND_POOL                                          \
+  auto p = std::make_unique<struct pipe>(n, min_coord, range, seed); \
+  gen_data(p);                                                       \
+  BS::thread_pool pool(std::thread::hardware_concurrency());
 
-  void TearDown() override {
-    pool.wait();
-    p.reset();
-  }
+TEST(ComputeMortonRunsWithoutException, ComputeMortonRunsWithoutException) {
+  SETUP_PIPE_AND_POOL
 
-  bool isSorted(const uint32_t* data, size_t size) {
-    return std::is_sorted(data, data + size);
-  }
-
-  BS::thread_pool pool;
-  int n_threads;
-  std::shared_ptr<struct pipe> p;
-};
-
-// Test for dispatch_ComputeMorton
-TEST_F(DispatchTest, ComputeMortonRunsWithoutException) {
-  EXPECT_NO_THROW({ cpu::dispatch_ComputeMorton(pool, n_threads, p.get()); });
+  // Run the function under test and check for exceptions
+  EXPECT_NO_THROW(
+      cpu::dispatch_ComputeMorton(pool, pool.get_thread_count(), p.get()));
 }
 
-// Test for dispatch_RadixSort
-TEST_F(DispatchTest, RadixSortRunsWithoutException) {
-  EXPECT_NO_THROW({
-    cpu::dispatch_ComputeMorton(pool, n_threads, p.get());
-    cpu::dispatch_RadixSort(pool, n_threads, p.get());
-  });
+TEST(RadixSortRunsWithoutException, RadixSortRunsWithoutException) {
+  SETUP_PIPE_AND_POOL
+
+  // Call prerequisite functions
+  cpu::dispatch_ComputeMorton(pool, pool.get_thread_count(), p.get());
+
+  EXPECT_NO_THROW(
+      cpu::dispatch_RadixSort(pool, pool.get_thread_count(), p.get()));
+
+  // Check if the Morton codes are sorted
+  auto is_sorted = std::is_sorted(p->getSortedKeys(), p->getSortedKeys() + n);
+  EXPECT_TRUE(is_sorted);
 }
 
-// Test for dispatch_RadixSort to verify sorting correctness
-TEST_F(DispatchTest, RadixSortCorrectness) {
-  EXPECT_NO_THROW({
-    cpu::dispatch_ComputeMorton(pool, n_threads, p.get());
-    cpu::dispatch_RadixSort(pool, n_threads, p.get());
-  });
+TEST(RemoveDuplicatesRunsWithoutException,
+     RemoveDuplicatesRunsWithoutException) {
+  SETUP_PIPE_AND_POOL
 
-  // Verify that the morton codes are sorted
-  bool sorted = isSorted(p->getSortedKeys(), p->n_input());
-  EXPECT_TRUE(sorted) << "The morton codes are not sorted correctly.";
+  // Call prerequisite functions
+  cpu::dispatch_ComputeMorton(pool, pool.get_thread_count(), p.get());
+  cpu::dispatch_RadixSort(pool, pool.get_thread_count(), p.get());
+
+  // Run the function under test and check for exceptions
+  EXPECT_NO_THROW(
+      cpu::dispatch_RemoveDuplicates(pool, pool.get_thread_count(), p.get()));
 }
 
-// Test for dispatch_RemoveDuplicates
-TEST_F(DispatchTest, RemoveDuplicatesRunsWithoutException) {
-  EXPECT_NO_THROW({
-    cpu::dispatch_ComputeMorton(pool, n_threads, p.get());
-    cpu::dispatch_RadixSort(pool, n_threads, p.get());
-    cpu::dispatch_RemoveDuplicates(pool, n_threads, p.get());
-  });
+// Radix Tree
+TEST(BuildRadixTreeRunsWithoutException, BuildRadixTreeRunsWithoutException) {
+  SETUP_PIPE_AND_POOL
+
+  // Call prerequisite functions
+  cpu::dispatch_ComputeMorton(pool, pool.get_thread_count(), p.get());
+  cpu::dispatch_RadixSort(pool, pool.get_thread_count(), p.get());
+  cpu::dispatch_RemoveDuplicates(pool, pool.get_thread_count(), p.get());
+
+  // Run the function under test and check for exceptions
+  EXPECT_NO_THROW(
+      cpu::dispatch_BuildRadixTree(pool, pool.get_thread_count(), p.get()));
 }
 
-// TEST_F(DispatchTest, RemoveDuplicatesCorrectness) {
-//   // Run the necessary preceding functions
-//   ASSERT_NO_THROW({
-//     cpu::dispatch_ComputeMorton(pool, n_threads, p.get());
-//     cpu::dispatch_RadixSort(pool, n_threads, p.get());
-//   });
+// edge count
+TEST(CountEdgesRunsWithoutException, CountEdgesRunsWithoutException) {
+  SETUP_PIPE_AND_POOL
 
-//   // Capture the sorted morton codes before removing duplicates
-//   std::vector<uint32_t> sorted_morton_codes(p->getSortedKeys(),
-//                                             p->getSortedKeys() +
-//                                             p->n_input());
+  // Call prerequisite functions
+  cpu::dispatch_ComputeMorton(pool, pool.get_thread_count(), p.get());
+  cpu::dispatch_RadixSort(pool, pool.get_thread_count(), p.get());
+  cpu::dispatch_RemoveDuplicates(pool, pool.get_thread_count(), p.get());
+  cpu::dispatch_BuildRadixTree(pool, pool.get_thread_count(), p.get());
 
-//   // Run the RemoveDuplicates function
-//   ASSERT_NO_THROW(
-//       { cpu::dispatch_RemoveDuplicates(pool, n_threads, p.get()); });
-
-//   // Use std::unique to get the expected unique morton codes
-//   auto unique_end =
-//       std::unique(sorted_morton_codes.begin(), sorted_morton_codes.end());
-//   sorted_morton_codes.erase(unique_end, sorted_morton_codes.end());
-
-//   // Compare sizes
-//   EXPECT_EQ(p->getUniqueKeys(), sorted_morton_codes.size())
-//       << "The number of unique morton codes does not match.";
-
-//   // Compare the unique morton codes
-//   bool match = std::equal(p->getUniqueKeys(),
-//                           p->getUniqueKeys() + p->n_unique_mortons(),
-//                           sorted_morton_codes.begin());
-//   EXPECT_TRUE(match)
-//       << "The unique morton codes do not match the expected result.";
-// }
-
-// Test for dispatch_BuildRadixTree
-TEST_F(DispatchTest, BuildRadixTreeRunsWithoutException) {
-  EXPECT_NO_THROW({
-    cpu::dispatch_ComputeMorton(pool, n_threads, p.get());
-    cpu::dispatch_RadixSort(pool, n_threads, p.get());
-    cpu::dispatch_RemoveDuplicates(pool, n_threads, p.get());
-    cpu::dispatch_BuildRadixTree(pool, n_threads, p.get());
-  });
+  // Run the function under test and check for exceptions
+  EXPECT_NO_THROW(
+      cpu::dispatch_EdgeCount(pool, pool.get_thread_count(), p.get()));
 }
 
-// Test for dispatch_EdgeCount
-TEST_F(DispatchTest, EdgeCountRunsWithoutException) {
-  EXPECT_NO_THROW({
-    // cpu::dispatch_ComputeMorton(pool, n_threads, p.get());
-    // cpu::dispatch_RadixSort(pool, n_threads, p.get());
-    // cpu::dispatch_RemoveDuplicates(pool, n_threads, p.get());
-    // cpu::dispatch_BuildRadixTree(pool, n_threads, p.get());
-    // cpu::dispatch_EdgeCount(pool, n_threads, p.get());
+// edge offset
+TEST(ComputeEdgeOffsetRunsWithoutException,
+     ComputeEdgeOffsetRunsWithoutException) {
+  SETUP_PIPE_AND_POOL
 
-    cpu::dispatch_ComputeMorton(pool, n_threads, p.get());
-    cpu::dispatch_RadixSort(pool, n_threads, p.get());
-    cpu::dispatch_RemoveDuplicates(pool, n_threads, p.get());
-    cpu::dispatch_BuildRadixTree(pool, n_threads, p.get());
-    cpu::dispatch_EdgeCount(pool, n_threads, p.get());
-    // cpu::dispatch_EdgeOffset(pool, n_threads, p.get());
-    // cpu::dispatch_BuildOctree(pool, n_threads, p.get());
-  });
+  // Call prerequisite functions
+  cpu::dispatch_ComputeMorton(pool, pool.get_thread_count(), p.get());
+  cpu::dispatch_RadixSort(pool, pool.get_thread_count(), p.get());
+  cpu::dispatch_RemoveDuplicates(pool, pool.get_thread_count(), p.get());
+  cpu::dispatch_BuildRadixTree(pool, pool.get_thread_count(), p.get());
+  cpu::dispatch_EdgeCount(pool, pool.get_thread_count(), p.get());
+
+  // Run the function under test and check for exceptions
+  EXPECT_NO_THROW(
+      cpu::dispatch_EdgeOffset(pool, pool.get_thread_count(), p.get()));
 }
 
-// Test for dispatch_EdgeOffset
-TEST_F(DispatchTest, EdgeOffsetRunsWithoutException) {
-  EXPECT_NO_THROW({
-    cpu::dispatch_ComputeMorton(pool, n_threads, p.get());
-    cpu::dispatch_RadixSort(pool, n_threads, p.get());
-    cpu::dispatch_RemoveDuplicates(pool, n_threads, p.get());
-    cpu::dispatch_BuildRadixTree(pool, n_threads, p.get());
-    cpu::dispatch_EdgeCount(pool, n_threads, p.get());
-    cpu::dispatch_EdgeOffset(pool, n_threads, p.get());
-  });
-}
+// octree
+TEST(BuildOctreeRunsWithoutException, BuildOctreeRunsWithoutException) {
+  SETUP_PIPE_AND_POOL
 
-// Test for dispatch_BuildOctree
-TEST_F(DispatchTest, BuildOctreeRunsWithoutException) {
-  EXPECT_NO_THROW({
-    cpu::dispatch_ComputeMorton(pool, n_threads, p.get());
-    cpu::dispatch_RadixSort(pool, n_threads, p.get());
-    cpu::dispatch_RemoveDuplicates(pool, n_threads, p.get());
-    cpu::dispatch_BuildRadixTree(pool, n_threads, p.get());
-    cpu::dispatch_EdgeCount(pool, n_threads, p.get());
-    cpu::dispatch_EdgeOffset(pool, n_threads, p.get());
-    cpu::dispatch_BuildOctree(pool, n_threads, p.get());
-  });
+  // Call prerequisite functions
+  cpu::dispatch_ComputeMorton(pool, pool.get_thread_count(), p.get());
+  cpu::dispatch_RadixSort(pool, pool.get_thread_count(), p.get());
+  cpu::dispatch_RemoveDuplicates(pool, pool.get_thread_count(), p.get());
+  cpu::dispatch_BuildRadixTree(pool, pool.get_thread_count(), p.get());
+  cpu::dispatch_EdgeCount(pool, pool.get_thread_count(), p.get());
+  cpu::dispatch_EdgeOffset(pool, pool.get_thread_count(), p.get());
+
+  // Run the function under test and check for exceptions
+  EXPECT_NO_THROW(
+      cpu::dispatch_BuildOctree(pool, pool.get_thread_count(), p.get()));
 }
 
 int main(int argc, char** argv) {
