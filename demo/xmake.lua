@@ -1,7 +1,8 @@
 includes("cpu-info")
 includes("micro-bench")
+includes("vulkan")
 
-target("demo-cpu-only")
+target("demo-cpu")
     set_kind("binary")
     add_includedirs("$(projectdir)/include")
     add_files("cpu_only.cpp")

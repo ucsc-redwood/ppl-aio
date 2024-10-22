@@ -28,7 +28,32 @@ add_requires("gtest", "benchmark")
 -- vulakn works for both Android and Linux
 add_requires("vulkan-headers")
 
+-- before_build(function(target)
+--     os.exec("python3 ./scripts/compile-shaders.py")
+-- end)
+
+
 includes("tests")
 includes("benchmarks")
 includes("demo")
 includes("ppl")
+
+after_build(function(target)
+    platform = target:plat()
+    arch = target:arch()
+    build_path = ""
+    -- local symsdir = path.join("$(buildir)", "$(plat)", "syms", "$(mode)", "$(arch)")
+    local validationlayers = target:pkg("vulkan-validationlayers")
+    if validationlayers then
+        local arch = target:arch()
+        os.vcp(path.join(validationlayers:installdir(), "lib", arch, "*.so"), path.join(os.scriptdir(), "..", "libs", arch))
+    end
+    if is_mode("release") then
+        build_path = "$(buildir)/" .. platform .. "/" .. arch .. "/release/"
+    else
+        build_path = "$(buildir)/" .. platform .. "/" .. arch .. "/debug/"
+    end
+    os.cp("shaders/compiled_shaders/**.spv", build_path)
+    print("Copied compiled shaders to " .. build_path)
+    
+end)
