@@ -1,0 +1,8 @@
+target("bench-vulkan")
+    set_kind("binary")
+    add_includedirs("$(projectdir)/demo/vulkan/include")
+    add_includedirs("$(projectdir)/include")
+    add_files("main.cpp")
+    add_files("$(projectdir)/include/volk.c")
+    add_packages("benchmark", "glm", "vulkan-headers",  "vulkan-validationlayers")
+    add_deps("ppl")
