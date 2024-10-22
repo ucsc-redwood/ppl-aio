@@ -97,4 +97,72 @@ BENCHMARK_REGISTER_F(CPU, BM_RemoveDuplicates)
     ->Unit(benchmark::kMillisecond)
     ->Iterations(n_iterations);
 
+// ----------------------------------------------------------------------------
+// Build radix tree
+// ----------------------------------------------------------------------------
+
+BENCHMARK_DEFINE_F(CPU, BM_BuildRadixTree)(benchmark::State& state) {
+  const auto n_threads = state.range(0);
+
+  for (auto _ : state) {
+    cpu::dispatch_BuildRadixTree(pool, n_threads, p.get());
+  }
+}
+
+BENCHMARK_REGISTER_F(CPU, BM_BuildRadixTree)
+    ->DenseRange(1, std::thread::hardware_concurrency(), 1)
+    ->Unit(benchmark::kMillisecond)
+    ->Iterations(n_iterations);
+
+// ----------------------------------------------------------------------------
+// Edge count
+// ----------------------------------------------------------------------------
+
+BENCHMARK_DEFINE_F(CPU, BM_EdgeCount)(benchmark::State& state) {
+  const auto n_threads = state.range(0);
+
+  for (auto _ : state) {
+    cpu::dispatch_EdgeCount(pool, n_threads, p.get());
+  }
+}
+
+BENCHMARK_REGISTER_F(CPU, BM_EdgeCount)
+    ->DenseRange(1, std::thread::hardware_concurrency(), 1)
+    ->Unit(benchmark::kMillisecond)
+    ->Iterations(n_iterations);
+
+// ----------------------------------------------------------------------------
+// Edge offset
+// ----------------------------------------------------------------------------
+
+BENCHMARK_DEFINE_F(CPU, BM_EdgeOffset)(benchmark::State& state) {
+  const auto n_threads = state.range(0);
+
+  for (auto _ : state) {
+    cpu::dispatch_EdgeOffset(pool, n_threads, p.get());
+  }
+}
+
+BENCHMARK_REGISTER_F(CPU, BM_EdgeOffset)
+    ->DenseRange(1, std::thread::hardware_concurrency(), 1)
+    ->Unit(benchmark::kMillisecond)
+    ->Iterations(n_iterations);
+
+// ----------------------------------------------------------------------------
+// Build octree
+// ----------------------------------------------------------------------------
+
+BENCHMARK_DEFINE_F(CPU, BM_BuildOctree)(benchmark::State& state) {
+  const auto n_threads = state.range(0);
+
+  for (auto _ : state) {
+    cpu::dispatch_BuildOctree(pool, n_threads, p.get());
+  }
+}
+
+BENCHMARK_REGISTER_F(CPU, BM_BuildOctree)
+    ->DenseRange(1, std::thread::hardware_concurrency(), 1)
+    ->Unit(benchmark::kMillisecond)
+    ->Iterations(n_iterations);
+
 BENCHMARK_MAIN();

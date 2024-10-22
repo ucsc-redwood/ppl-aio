@@ -1,0 +1,53 @@
+2024-10-21T22:26:39-07:00
+Running /mnt/code/ppl-aio/build/linux/arm64/release/bench-cpu
+Run on (6 X 1510.4 MHz CPU s)
+CPU Caches:
+  L1 Data 64 KiB (x6)
+  L1 Instruction 64 KiB (x6)
+  L2 Unified 256 KiB (x6)
+  L3 Unified 2048 KiB (x1)
+Load Average: 0.31, 0.18, 0.06
+***WARNING*** CPU scaling is enabled, the benchmark real time measurements may be noisy and will incur extra overhead.
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message
+"CPU/BM_Morton/1/iterations:50",50,4.41707,0.0114995,ms,,,,,
+"CPU/BM_Morton/2/iterations:50",50,2.51263,0.023225,ms,,,,,
+"CPU/BM_Morton/3/iterations:50",50,1.54578,0.0202573,ms,,,,,
+"CPU/BM_Morton/4/iterations:50",50,1.34606,0.0338714,ms,,,,,
+"CPU/BM_Morton/5/iterations:50",50,1.18354,0.0415981,ms,,,,,
+"CPU/BM_Morton/6/iterations:50",50,0.9389,0.0431162,ms,,,,,
+"CPU/BM_Sort/1/iterations:50",50,9.06678,0.0442496,ms,,,,,
+"CPU/BM_Sort/2/iterations:50",50,4.99521,0.0681082,ms,,,,,
+"CPU/BM_Sort/3/iterations:50",50,3.68616,0.0867949,ms,,,,,
+"CPU/BM_Sort/4/iterations:50",50,3.06537,0.104244,ms,,,,,
+"CPU/BM_Sort/5/iterations:50",50,3.02999,0.115802,ms,,,,,
+"CPU/BM_Sort/6/iterations:50",50,2.45001,0.126706,ms,,,,,
+"CPU/BM_RemoveDuplicates/1/iterations:50",50,0.437201,0.435677,ms,,,,,
+"CPU/BM_RemoveDuplicates/2/iterations:50",50,0.369559,0.368543,ms,,,,,
+"CPU/BM_RemoveDuplicates/3/iterations:50",50,0.32372,0.323096,ms,,,,,
+"CPU/BM_RemoveDuplicates/4/iterations:50",50,0.29566,0.2951,ms,,,,,
+"CPU/BM_RemoveDuplicates/5/iterations:50",50,0.292105,0.2913,ms,,,,,
+"CPU/BM_RemoveDuplicates/6/iterations:50",50,0.291465,0.290995,ms,,,,,
+"CPU/BM_BuildRadixTree/1/iterations:50",50,34.2056,0.0348589,ms,,,,,
+"CPU/BM_BuildRadixTree/2/iterations:50",50,17.7176,0.0230298,ms,,,,,
+"CPU/BM_BuildRadixTree/3/iterations:50",50,11.7148,0.0256,ms,,,,,
+"CPU/BM_BuildRadixTree/4/iterations:50",50,7.43033,0.0360531,ms,,,,,
+"CPU/BM_BuildRadixTree/5/iterations:50",50,5.83804,0.0397427,ms,,,,,
+"CPU/BM_BuildRadixTree/6/iterations:50",50,4.89923,0.0413997,ms,,,,,
+"CPU/BM_EdgeCount/1/iterations:50",50,0.908574,0.0100934,ms,,,,,
+"CPU/BM_EdgeCount/2/iterations:50",50,0.556228,0.0153107,ms,,,,,
+"CPU/BM_EdgeCount/3/iterations:50",50,0.385964,0.023232,ms,,,,,
+"CPU/BM_EdgeCount/4/iterations:50",50,0.44459,0.0350918,ms,,,,,
+"CPU/BM_EdgeCount/5/iterations:50",50,0.335278,0.0367392,ms,,,,,
+"CPU/BM_EdgeCount/6/iterations:50",50,0.45435,0.037536,ms,,,,,
+"CPU/BM_EdgeOffset/1/iterations:50",50,0.0194589,0.00729856,ms,,,,,
+"CPU/BM_EdgeOffset/2/iterations:50",50,0.01948,0.00735104,ms,,,,,
+"CPU/BM_EdgeOffset/3/iterations:50",50,0.0239684,0.00760064,ms,,,,,
+"CPU/BM_EdgeOffset/4/iterations:50",50,0.0228068,0.00894208,ms,,,,,
+"CPU/BM_EdgeOffset/5/iterations:50",50,0.0224298,0.00896576,ms,,,,,
+"CPU/BM_EdgeOffset/6/iterations:50",50,0.0214653,0.00876544,ms,,,,,
+"CPU/BM_BuildOctree/1/iterations:50",50,19.0105,0.0251315,ms,,,,,
+"CPU/BM_BuildOctree/2/iterations:50",50,10.4753,0.0344864,ms,,,,,
+"CPU/BM_BuildOctree/3/iterations:50",50,5.76511,0.0446445,ms,,,,,
+"CPU/BM_BuildOctree/4/iterations:50",50,4.86358,0.0600448,ms,,,,,
+"CPU/BM_BuildOctree/5/iterations:50",50,4.28501,0.056128,ms,,,,,
+"CPU/BM_BuildOctree/6/iterations:50",50,3.84248,0.078025,ms,,,,,
