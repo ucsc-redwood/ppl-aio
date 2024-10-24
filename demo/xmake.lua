@@ -1,5 +1,4 @@
 includes("cpu-info")
-includes("micro-bench")
 includes("vulkan")
 
 target("demo-cpu")
