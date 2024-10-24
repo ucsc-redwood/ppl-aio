@@ -41,3 +41,12 @@ sudo apt install vulkan-sdk
 
 To make Vulkan easily work on Android. We use `volk` library. 
 
+## Specs
+
+### Android Phone CPU Config
+
+![core_composition](/data/core_composition.png)
+
+### Jetson Orin Nano CPU result
+
+![config](/data/benchmark_results.png)
